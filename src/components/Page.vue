@@ -1,6 +1,6 @@
 <template>
   <div id="page">
-    <div v-html="text"></div>
+    <div v-html="page.content" v-if="page"></div>
   </div>
 </template>
 
@@ -9,7 +9,7 @@
     name: 'page',
     data() {
       return {
-        text: '',
+        page: null,
       };
     },
     created() {
@@ -19,31 +19,10 @@
       $route: 'getPage',
     },
     methods: {
-      // TODO: Retrieve data from database
       getPage() {
-        switch (this.$route.name) {
-          case 'About':
-            this.text = 'About';
-            break;
-          case 'Resume':
-            this.text = 'Resume';
-            break;
-          case 'Portfolio':
-            this.text = 'Portfolio';
-            break;
-          case 'Blog':
-            this.text = 'Blog';
-            break;
-          case 'Contact':
-            this.text = 'Contact';
-            break;
-          case 'Login':
-            this.text = 'Login';
-            break;
-          default:
-            this.text = 'Bonjour, je suis Thomas Kint <br />Je suis développeur informatique :)';
-            break;
-        }
+        this.axios.get(`page/name/${this.$route.name}`).then((response) => {
+          this.page = response.data;
+        });
       },
     },
   };

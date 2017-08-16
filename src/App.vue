@@ -1,8 +1,8 @@
 <template>
   <v-app dark>
-    <v-navigation-drawer permanent class="navbar">
+    <v-navigation-drawer permanent style="overflow: hidden">
       <v-list class="navbar" dense>
-        <v-list-tile id="avatar-tile">
+        <v-list-tile id="avatar-tile" v-if="pages[0]" :to="!pages[0].external ? { name: pages[0].target } : ''" :href="pages[0].external ? pages[0].target : ''">
           <v-list-tile-content>
             <img id="avatar" src="./assets/logo.png"/>
             <v-list-tile-title id="avatar-title">
@@ -10,7 +10,7 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-for="page in pages" :key="page.name" :to="!page.external ? { name: page.target } : ''" :href="page.external ? page.target : ''" :id="page.name === $route.name ? 'selected-tile' : ''">
+        <v-list-tile v-for="(page, index) in pages" v-if="index > 0" :key="page.name" :to="!page.external ? { name: page.target } : ''" :href="page.external ? page.target : ''" :id="page.name === $route.name ? 'selected-tile' : ''">
           <v-list-tile-content>
             <v-list-tile-title>
               <v-icon large style="font-size: 40px;" v-if="page.name === $route.name">{{ page.icon }}</v-icon>
@@ -84,11 +84,20 @@
       };
     },
     created() {
-      // TODO: Retrieve pages and links from database
-      this.$router.addRoutes(this.customPages);
-      this.customPages.forEach((e) => {
-        this.pages.push(e.link);
-      });
+      this.getPages();
+    },
+    methods: {
+      getPages() {
+        this.axios.get('page').then((response) => {
+          const pages = response.data;
+          const routes = [];
+          pages.forEach((e) => {
+            routes.push({ path: e.path, name: e.name, component: Page });
+            this.pages.push(e.link);
+          });
+          this.$router.addRoutes(routes);
+        });
+      },
     },
   };
 </script>
@@ -125,12 +134,6 @@
     /* .slide-fade-leave-active for <2.1.8 */ {
     transform: translateY(10px);
     opacity: 0;
-  }
-
-  #content {
-    /*background: url('./assets/background.png') no-repeat center;*/
-    background-attachment: fixed;
-    background-size: 100% 100%;
   }
 
   #selected-tile {
