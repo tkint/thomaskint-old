@@ -2,7 +2,7 @@
   <v-app dark>
     <v-navigation-drawer permanent style="overflow: hidden">
       <v-list class="navbar" dense>
-        <v-list-tile id="avatar-tile" v-if="pages[0]" :to="!pages[0].external ? { name: pages[0].target } : ''" :href="pages[0].external ? pages[0].target : ''">
+        <v-list-tile id="avatar-tile" v-if="links[0]" :to="!links[0].external ? { name: links[0].target } : ''" :href="links[0].external ? links[0].target : ''">
           <v-list-tile-content>
             <img id="avatar" src="./assets/logo.png"/>
             <v-list-tile-title id="avatar-title">
@@ -10,25 +10,48 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-for="(page, index) in pages" v-if="index > 0" :key="page.name" :to="!page.external ? { name: page.target } : ''" :href="page.external ? page.target : ''" :id="page.name === $route.name ? 'selected-tile' : ''">
+        <v-list-tile v-for="(link, index) in links" v-if="index > 0 && link" :key="link.name" :to="!link.external ? { name: link.target } : ''" :href="link.external ? link.target : ''" :id="link.target === $route.name ? 'selected-tile' : ''">
           <v-list-tile-content>
             <v-list-tile-title>
-              <v-icon large style="font-size: 40px;" v-if="page.name === $route.name">{{ page.icon }}</v-icon>
-              <v-icon large style="font-size: 30px; color: grey" v-else>{{ page.icon }}</v-icon>
+              <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">{{ link.icon }}</v-icon>
+              <v-icon class="menu-icon" large v-else>{{ link.icon }}</v-icon>
             </v-list-tile-title>
-            <v-list-tile-sub-title>
-              {{ page.name }}
+            <v-list-tile-sub-title class="menu-text">
+              {{ link.name }}
             </v-list-tile-sub-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <main>
-      <v-container fluid>
-        <transition name="slide-fade" mode="out-in">
-          <router-view :key="$route.name"></router-view>
-        </transition>
-      </v-container>
+      <v-speed-dial
+        absolute
+        right
+        direction="bottom"
+        transition="scale-transition"
+        style="z-index: 999"
+        v-model="adminMenu"
+        v-if="connected"
+      >
+        <v-btn slot="activator" class="blue darken-2" fab v-model="adminMenu">
+          <v-icon>account_circle</v-icon>
+          <v-icon>close</v-icon>
+        </v-btn>
+        <v-btn fab dark small class="green" @click.native="editPage" v-if="editBtn">
+          <v-icon>edit</v-icon>
+        </v-btn>
+        <v-btn fab dark small class="indigo" @click.native="newPage">
+          <v-icon>add</v-icon>
+        </v-btn>
+        <v-btn fab dark small class="red" @click.native="disconnect">
+          <v-icon>exit_to_app</v-icon>
+        </v-btn>
+      </v-speed-dial>
+      <transition name="slide" mode="out-in" appear>
+        <v-container :key="$route.name" fluid>
+          <router-view></router-view>
+        </v-container>
+      </transition>
     </main>
   </v-app>
 </template>
@@ -42,45 +65,10 @@
     name: 'app',
     data() {
       return {
-        pages: [],
-        // TODO: Delete when data source is set
-        customPages: [
-          { path: '/',
-            name: 'Home',
-            component: Page,
-            link: { name: 'Home', target: 'Home', icon: 'home', fa: false },
-          },
-          { path: '/about',
-            name: 'About',
-            component: Page,
-            link: { name: 'About', target: 'About', icon: 'person', fa: false },
-          },
-          { path: '/resume',
-            name: 'Resume',
-            component: Page,
-            link: { name: 'Resume', target: 'Resume', icon: 'featured_play_list', fa: false },
-          },
-          { path: '/portfolio',
-            name: 'Portfolio',
-            component: Page,
-            link: { name: 'Portfolio', target: 'Portfolio', icon: 'dashboard', fa: false },
-          },
-          { path: '/blog',
-            name: 'Blog',
-            component: Page,
-            link: { name: 'Blog', target: 'Blog', icon: 'book', fa: false },
-          },
-          { path: '/contact',
-            name: 'Contact',
-            component: Page,
-            link: { name: 'Contact', target: 'Contact', icon: 'phone', fa: false },
-          },
-          { path: '/login',
-            name: 'Login',
-            component: Page,
-            link: { name: 'Login', target: 'Login', icon: 'https', fa: false },
-          },
-        ],
+        adminMenu: false,
+        links: [],
+        editBtn: true,
+        connected: true,
       };
     },
     created() {
@@ -93,10 +81,20 @@
           const routes = [];
           pages.forEach((e) => {
             routes.push({ path: e.path, name: e.name, component: Page });
-            this.pages.push(e.link);
+            this.links.push({ name: e.link, target: e.name, icon: e.icon });
           });
           this.$router.addRoutes(routes);
         });
+      },
+      newPage() {
+        this.$router.push({ name: 'NewPage', params: { action: 'create' } });
+      },
+      editPage() {
+        this.$router.push({ name: 'EditPage', params: { action: 'edit', page: this.$route.name } });
+      },
+      disconnect() {
+        this.connected = false;
+        this.$router.push({ name: 'Home' });
       },
     },
   };
@@ -120,24 +118,30 @@
     border-bottom: 1px solid dimgrey;
   }
 
-  .list__tile__title, .list__tile__sub-title {
-    text-align: center;
+  .list--dense .list__tile:not(.list__tile--avatar) .menu-icon {
+    font-size: 30px;
+    color: grey
   }
 
-  .slide-fade-enter-active {
-    transition: all .1s ease;
+  .list--dense .list__tile:not(.list__tile--avatar) .menu-text {
+    color: grey;
   }
-  .slide-fade-leave-active {
-    transition: all .3s cubic-bezier(1.0, 0.5, 0.8, 1.0);
-  }
-  .slide-fade-enter, .slide-fade-leave-to
-    /* .slide-fade-leave-active for <2.1.8 */ {
-    transform: translateY(10px);
-    opacity: 0;
+
+  .list--dense .list__tile:not(.list__tile--avatar):hover .menu-icon,
+  .list--dense .list__tile:not(.list__tile--avatar):hover .menu-text {
+    color: #339966;
   }
 
   #selected-tile {
     height: 80px;
+  }
+
+  #selected-tile .menu-icon, #selected-tile .menu-text {
+    color: white;
+  }
+
+  .list__tile__title, .list__tile__sub-title {
+    text-align: center;
   }
 
   #avatar-tile {
@@ -162,5 +166,36 @@
     background-color: #339966;
     color: white;
     text-shadow: 1px 1px black;
+  }
+
+  .container {
+    background: no-repeat center;
+  }
+
+  .slide-enter-active,
+  .slide-leave-active {
+    transition: all .3s ease;
+  }
+
+  .slide-enter {
+    transform: translateY(100%);
+  }
+
+  .slide-leave-to  {
+    transform: translateY(-100%);
+    opacity: 1;
+  }
+
+  .flip-enter-active {
+    transition: all .2s cubic-bezier(0.55, 0.085, 0.68, 0.53);
+  }
+
+  .flip-leave-active {
+    transition: all .25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .flip-enter, .flip-leave-to {
+    transform: scaleY(0) translateZ(0);
+    opacity: 0;
   }
 </style>
