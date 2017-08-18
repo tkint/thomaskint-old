@@ -1,0 +1,67 @@
+tk-title {
+  position: absolute;
+  color: white;
+  font-weight: bold;
+}
+
+tk-title[right] {
+  right: 0;
+  text-align: right;
+}
+
+tk-title[center] {
+  left: 0;
+  right: 0;
+  text-align: center;
+}
+
+tk-title[middle] {
+  bottom: 50%;
+  transform: translateY(50%);
+}
+
+tk-title[bottom] {
+  bottom: 0;
+}
+
+tk-animate {
+  display: block;
+  transition: all .3s;
+}
+
+tk-animate[slow] {
+  -webkit-animation-duration: 4s !important;
+  animation-duration: 4s !important;
+}
+
+tk-animate[repeat] {
+  -webkit-animation-iteration-count: infinite;
+  animation-iteration-count: infinite;
+}
+
+tk-animate[spin] {
+  -webkit-animation-name: spinner;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-duration: 2s;
+  animation-name: spinner;
+  animation-timing-function: linear;
+  animation-duration: 2s;
+  -webkit-transform-style: preserve-3d;
+  -moz-transform-style: preserve-3d;
+  -ms-transform-style: preserve-3d;
+  transform-style: preserve-3d;
+}
+
+@keyframes spinner {
+  from {
+    -moz-transform: rotateY(0deg);
+    -ms-transform: rotateY(0deg);
+    transform: rotateY(0deg);
+  }
+  to
+  {
+    -moz-transform: rotateY(-360deg);
+    -ms-transform: rotateY(-360deg);
+    transform: rotateY(-360deg);
+  }
+}

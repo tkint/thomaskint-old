@@ -1,12 +1,17 @@
 <template>
-  <div id="page">
-    <div v-html="page.content" v-if="page"></div>
-  </div>
+  <v-container
+    id="main-container"
+    v-html="'<pre>' + page.content + '</pre>'"
+    v-if="page"
+    fluid
+  >
+  </v-container>
 </template>
 
 <script>
   export default {
     name: 'page',
+    props: ['p'],
     data() {
       return {
         page: null,
@@ -14,13 +19,11 @@
       };
     },
     created() {
+      this.clearStyle();
       this.getPage();
     },
     destroyed() {
-      const s = document.getElementById('page-style');
-      if (s) {
-        document.getElementsByTagName('head')[0].removeChild(s);
-      }
+      this.clearStyle();
     },
     watch: {
       $route: 'getPage',
@@ -28,14 +31,21 @@
     methods: {
       getPage() {
         this.axios.get(`page/${this.$route.name}`).then((response) => {
-          this.page = response.data;
-          if (this.page.style) {
+          const page = response.data;
+          if (page.style) {
             const s = document.createElement('style');
             s.setAttribute('id', 'page-style');
-            s.innerHTML = this.page.style;
+            s.innerHTML = page.style;
             document.getElementsByTagName('head')[0].appendChild(s);
           }
+          this.page = page;
         });
+      },
+      clearStyle() {
+        const s = document.getElementById('page-style');
+        if (s) {
+          document.getElementsByTagName('head')[0].removeChild(s);
+        }
       },
     },
   };

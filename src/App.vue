@@ -1,5 +1,29 @@
 <template>
   <v-app dark>
+    <v-speed-dial
+      absolute
+      right
+      hover
+      direction="bottom"
+      transition="scale-transition"
+      style="z-index: 999"
+      v-model="adminMenu"
+      v-if="connected"
+    >
+      <v-btn slot="activator" class="blue darken-2" fab v-model="adminMenu">
+        <v-icon>account_circle</v-icon>
+        <v-icon>close</v-icon>
+      </v-btn>
+      <v-btn fab dark small class="green" @click.native="editPage" v-if="editBtn">
+        <v-icon>edit</v-icon>
+      </v-btn>
+      <v-btn fab dark small class="indigo" @click.native="newPage">
+        <v-icon>add</v-icon>
+      </v-btn>
+      <v-btn fab dark small class="red" @click.native="disconnect">
+        <v-icon>exit_to_app</v-icon>
+      </v-btn>
+    </v-speed-dial>
     <v-navigation-drawer permanent style="overflow: hidden">
       <v-list class="navbar" dense>
         <v-list-tile id="avatar-tile" v-if="links[0]" :to="!links[0].external ? { name: links[0].target } : ''" :href="links[0].external ? links[0].target : ''">
@@ -24,33 +48,8 @@
       </v-list>
     </v-navigation-drawer>
     <main>
-      <v-speed-dial
-        absolute
-        right
-        direction="bottom"
-        transition="scale-transition"
-        style="z-index: 999"
-        v-model="adminMenu"
-        v-if="connected"
-      >
-        <v-btn slot="activator" class="blue darken-2" fab v-model="adminMenu">
-          <v-icon>account_circle</v-icon>
-          <v-icon>close</v-icon>
-        </v-btn>
-        <v-btn fab dark small class="green" @click.native="editPage" v-if="editBtn">
-          <v-icon>edit</v-icon>
-        </v-btn>
-        <v-btn fab dark small class="indigo" @click.native="newPage">
-          <v-icon>add</v-icon>
-        </v-btn>
-        <v-btn fab dark small class="red" @click.native="disconnect">
-          <v-icon>exit_to_app</v-icon>
-        </v-btn>
-      </v-speed-dial>
-      <transition name="slide" mode="out-in" appear>
-        <v-container :key="$route.name" fluid>
-          <router-view></router-view>
-        </v-container>
+      <transition name="slide-y" mode="out-in" appear>
+        <router-view :key="$route.name"></router-view>
       </transition>
     </main>
   </v-app>
@@ -74,16 +73,31 @@
     created() {
       this.getPages();
     },
+    watch: {
+      $route: 'updateLinks',
+    },
     methods: {
       getPages() {
         this.axios.get('page').then((response) => {
           const pages = response.data;
           const routes = [];
+          const links = [];
           pages.forEach((e) => {
             routes.push({ path: e.path, name: e.name, component: Page });
-            this.links.push({ name: e.link, target: e.name, icon: e.icon });
+            links.push({ name: e.link, target: e.name, icon: e.icon });
           });
           this.$router.addRoutes(routes);
+          this.links = links;
+        });
+      },
+      updateLinks() {
+        this.axios.get('page').then((response) => {
+          const pages = response.data;
+          const links = [];
+          pages.forEach((e) => {
+            links.push({ name: e.link, target: e.name, icon: e.icon });
+          });
+          this.links = links;
         });
       },
       newPage() {
@@ -172,17 +186,31 @@
     background: no-repeat center;
   }
 
-  .slide-enter-active,
-  .slide-leave-active {
+  .slide-y-enter-active,
+  .slide-y-leave-active {
     transition: all .3s ease;
   }
 
-  .slide-enter {
+  .slide-y-enter {
     transform: translateY(100%);
   }
 
-  .slide-leave-to  {
+  .slide-y-leave-to  {
     transform: translateY(-100%);
+    opacity: 1;
+  }
+
+  .slide-y-reverse-enter-active,
+  .slide-y-reverse-leave-active {
+    transition: all .3s ease;
+  }
+
+  .slide-y-reverse-enter {
+    transform: translateY(-100%);
+  }
+
+  .slide-y-reverse-leave-to  {
+    transform: translateY(100%);
     opacity: 1;
   }
 
@@ -197,5 +225,15 @@
   .flip-enter, .flip-leave-to {
     transform: scaleY(0) translateZ(0);
     opacity: 0;
+  }
+
+  #main-container {
+    position: relative;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: inherit;
+    text-shadow: 1px 1px 8px black;
+    line-height: 30%;
   }
 </style>

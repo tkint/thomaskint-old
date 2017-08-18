@@ -8,6 +8,7 @@
               <v-text-field
                 label="Name"
                 v-model="page.name"
+                v-on:input="onPageNameChange"
               ></v-text-field>
             </v-flex>
           </v-layout>
@@ -20,45 +21,32 @@
             </v-flex>
           </v-layout>
           <v-layout row>
-            <v-flex xs12>
-              <v-switch
+            <v-flex xs12 md3>
+              <v-text-field
                 label="Link"
-                v-model="createLink"
+                v-model="page.link"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md3>
+              <v-text-field
+                label="Order"
+                v-model="page.numorder"
+              ></v-text-field>
+              <span v-for="n in numorders" :class="n.numorder === page.numorder ? 'red--text' : ''">{{ n.numorder }} </span>
+            </v-flex>
+            <v-flex xs12 md3>
+              <v-text-field
+                label="Icon"
+                v-model="page.icon"
+              ></v-text-field>
+            </v-flex>
+            <v-flex xs12 md3>
+              <v-switch
+                label="Font Awesome"
+                v-model="fa"
               ></v-switch>
             </v-flex>
           </v-layout>
-          <v-card v-if="createLink">
-            <v-card-text>
-              <v-container fluid>
-                <v-layout row>
-                  <v-flex xs12 md3>
-                    <v-text-field
-                      label="Name"
-                      v-model="link.name"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 md3>
-                    <v-text-field
-                      label="Target"
-                      v-model="link.target"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 md3>
-                    <v-text-field
-                      label="Icon"
-                      v-model="link.icon"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 md3>
-                    <v-switch
-                      label="Font Awesome"
-                      v-model="link.fa"
-                    ></v-switch>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-card-text>
-          </v-card>
           <v-layout row>
             <v-flex xs12>
               <v-text-field
@@ -83,23 +71,13 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <div v-if="isEdit">
-          <v-btn>Save</v-btn>
-          <v-btn @click.native="goBack">Back</v-btn>
-        </div>
-        <v-btn v-else>Create</v-btn>
+        <v-btn @click.native="save">
+          <span v-if="isEdit">Save</span>
+          <span v-else>Create</span>
+        </v-btn>
+        <v-btn v-if="isEdit" @click.native="goBack">Back</v-btn>
         <v-spacer></v-spacer>
       </v-card-actions>
-      <v-card-text>
-        <pre>
-{
-  name: '{{ page.name }}',
-  path: '{{ page.path }}',
-  content: '{{ page.content }}',
-  style: '{{ page.style }}',
-}
-        </pre>
-      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -109,20 +87,28 @@
     name: 'pageform',
     data() {
       return {
-        page: { name: null, path: null, content: null, style: null },
-        link: { name: null, target: null, icon: null, fa: null },
+        numorders: [],
+        page: {
+          name: null,
+          link: null,
+          path: null,
+          icon: null,
+          fa: null,
+          numorder: null,
+          content: null,
+          style: null,
+        },
+        fa: null,
         createLink: false,
       };
     },
     created() {
       this.getPage();
+      this.getNumorders();
       this.$parent.editBtn = false;
     },
     destroyed() {
       this.$parent.editBtn = true;
-    },
-    watch: {
-      'page.name': 'onPageNameChange',
     },
     computed: {
       isEdit() {
@@ -131,23 +117,47 @@
     },
     methods: {
       getPage() {
-        if (this.$route.params.page) {
+        if (this.$route.params.action === 'edit' && this.$route.params.page) {
           this.axios.get(`page/${this.$route.params.page}`).then((response) => {
-            const page = response.data;
-            this.page = page;
-            this.link = { name: page.link, target: page.name, icon: page.icon };
+            this.page = response.data;
           });
         }
+      },
+      getNumorders() {
+        this.axios.get('page/numorders').then((response) => {
+          this.numorders = response.data;
+          if (!this.page.numorder) {
+            this.page.numorder = parseInt(this.numorders[this.numorders.length - 1].numorder, 10) + 1;
+          }
+        });
       },
       onPageNameChange() {
         this.page.name = this.page.name.replace(/\s/g, '').trim();
         this.page.path = `/${this.page.name.toLowerCase()}`;
-        this.link.name = this.page.name;
-        this.link.name = this.link.name.replace(/([A-Z])/g, ' $1').trim();
-        this.link.target = this.page.name;
+        this.page.link = this.page.name;
+        this.page.link = this.link.name.replace(/([A-Z])/g, ' $1').trim();
       },
       goBack() {
         this.$router.push({ name: this.page.name });
+      },
+      save() {
+        if (this.isValid()) {
+          this.page.fa = this.fa;
+          if (this.$route.name === 'NewPage') {
+            this.axios.post('page', this.page).then((response) => {
+              this.page = response.data;
+              this.goBack();
+            });
+          } else {
+            this.axios.put('page', this.page).then((response) => {
+              this.page = response.data;
+              this.goBack();
+            });
+          }
+        }
+      },
+      isValid() {
+        return true;
       },
     },
   };
