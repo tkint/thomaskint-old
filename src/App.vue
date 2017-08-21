@@ -1,9 +1,8 @@
 <template>
   <v-app dark>
     <v-speed-dial
-      absolute
+      fixed
       right
-      hover
       direction="bottom"
       transition="scale-transition"
       style="z-index: 999"
@@ -19,6 +18,7 @@
         dark
         small
         v-for="(item, index) in adminBtns"
+        v-if="item.enabled"
         :key="index"
         :class="item.color"
         @click.native="item.action">
@@ -59,7 +59,7 @@
       </v-list>
     </v-navigation-drawer>
     <main>
-      <transition name="slide-y" mode="out-in" appear>
+      <transition name="flip" mode="out-in" appear>
         <router-view :key="$route.name"></router-view>
       </transition>
     </main>
@@ -69,18 +69,46 @@
 <script>
   import Page from '@/components/Page';
 
-  require('../node_modules/vuetify/dist/vuetify.min.css');
+  require('vuetify/dist/vuetify.min.css');
 
   export default {
     name: 'app',
     data() {
       return {
+        windowSize: {
+          x: 0,
+          y: 0,
+        },
         adminMenu: false,
         adminBtns: [
           {
             self: this.$parent,
+            icon: 'settings',
+            color: 'grey',
+            enabled: true,
+            action() {
+              this.self.$router.push({ name: 'Settings' });
+            },
+          },
+          {
+            self: this.$parent,
+            icon: 'save',
+            color: 'teal',
+            enabled: false,
+            action() {},
+          },
+          {
+            self: this.$parent,
+            icon: 'reply',
+            color: 'orange',
+            enabled: false,
+            action() {},
+          },
+          {
+            self: this.$parent,
             icon: 'edit',
             color: 'green',
+            enabled: false,
             action() {
               this.self.$router.push({ name: 'EditPage', params: { action: 'edit', page: this.self.$route.name } });
             },
@@ -89,6 +117,7 @@
             self: this.$parent,
             icon: 'add',
             color: 'indigo',
+            enabled: true,
             action() {
               this.self.$router.push({ name: 'NewPage', params: { action: 'create' } });
             },
@@ -97,6 +126,7 @@
             self: this.$parent,
             icon: 'exit_to_app',
             color: 'red',
+            enabled: true,
             action() {
               this.self.connected = false;
               this.self.$router.push({ name: 'Home' });
@@ -107,20 +137,40 @@
         connected: true,
       };
     },
+    mounted() {
+      this.onResize();
+    },
     created() {
       this.getPages();
+      this.updateMenu();
     },
     watch: {
-      $route: 'updateLinks',
+      $route: ['updateLinks', 'updateMenu'],
     },
     methods: {
+      updateMenu() {
+        this.adminBtns[1].enabled = this.$route.meta.editing;
+        this.adminBtns[2].enabled = this.$route.meta.editing;
+        this.adminBtns[3].enabled = this.$route.meta.editable;
+      },
+      onResize() {
+        this.windowSize = { x: window.innerWidth, y: window.innerHeight };
+      },
       getPages() {
         this.axios.get('page').then((response) => {
           const pages = response.data;
           const routes = [];
           const links = [];
           pages.forEach((e) => {
-            routes.push({ path: e.path, name: e.name, component: Page });
+            routes.push({
+              path: e.path,
+              name: e.name,
+              component: Page,
+              meta: {
+                editable: true,
+                editing: false,
+              },
+            });
             links.push({ name: e.link, target: e.name, icon: e.icon });
           });
           this.$router.addRoutes(routes);
@@ -254,8 +304,12 @@
     opacity: 0;
   }
 
-  #main-container {
+  .main-container {
     position: relative;
+  }
+
+  .tabs__items {
+    border: 0 !important;
   }
 
   h1, h2, h3, h4, h5, h6 {

@@ -1,8 +1,8 @@
 <template>
   <v-container
-    id="main-container"
-    v-html="'<pre>' + page.content + '</pre>'"
-    v-if="page"
+    class="main-container"
+    v-html="page.content.replace(/\n/g, '<br />')"
+    v-if="page && page.content"
     fluid
   >
   </v-container>
@@ -11,7 +11,6 @@
 <script>
   export default {
     name: 'page',
-    props: ['p'],
     data() {
       return {
         page: null,
@@ -19,17 +18,14 @@
       };
     },
     created() {
-      this.clearStyle();
       this.getPage();
-    },
-    destroyed() {
-      this.clearStyle();
     },
     watch: {
       $route: 'getPage',
     },
     methods: {
       getPage() {
+        this.clearStyle();
         this.axios.get(`page/${this.$route.name}`).then((response) => {
           const page = response.data;
           if (page.style) {

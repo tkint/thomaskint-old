@@ -1,93 +1,142 @@
 <template>
-  <div id="page">
-    <v-card>
-      <v-card-text>
-        <v-container fluid>
-          <v-layout row>
-            <v-flex xs12>
-              <v-text-field
-                label="Name"
-                v-model="page.name"
-                v-on:input="onPageNameChange"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12>
-              <v-text-field
-                label="Path"
-                v-model="page.path"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12 md3>
-              <v-text-field
-                label="Link"
-                v-model="page.link"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs12 md3>
-              <v-text-field
-                label="Order"
-                v-model="page.numorder"
-              ></v-text-field>
-              <span v-for="n in numorders" :class="n.numorder === page.numorder ? 'red--text' : ''">{{ n.numorder }} </span>
-            </v-flex>
-            <v-flex xs12 md3>
-              <v-text-field
-                label="Icon"
-                v-model="page.icon"
-              ></v-text-field>
-            </v-flex>
-            <v-flex xs12 md3>
-              <v-switch
-                label="Font Awesome"
-                v-model="fa"
-              ></v-switch>
-            </v-flex>
-          </v-layout>
-          <v-layout row wrap>
-            <v-flex xs1 v-for="(item, index) in buttonTags" :key="index">
-              <v-btn icon @click.native.stop="addTag(item.tag)">
-                <v-icon :fa="item.fa">{{ item.icon }}</v-icon>
-              </v-btn>
-            </v-flex>
-          </v-layout>
-          <div id="tag-name"></div>
-          <v-layout row>
-            <v-flex xs12>
-              <v-text-field
-                id="page-content"
-                label="Content"
-                multiLine
-                autoGrow
-                v-model="page.content"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
-          <v-layout row>
-            <v-flex xs12>
-              <v-text-field
-                label="Style"
-                multiLine
-                autoGrow
-                v-model="page.style"
-              ></v-text-field>
-            </v-flex>
-          </v-layout>
+  <div id="pageform">
+    <v-tabs centered grow>
+      <v-tabs-bar slot="activators" class="teal" style="position: fixed; left: 100px; right: 0; width: auto; z-index: 998">
+        <v-tabs-slider class="white"></v-tabs-slider>
+        <v-tabs-item href="#tab-settings">
+          Settings
+        </v-tabs-item>
+        <v-tabs-item href="#tab-content">
+          Content
+        </v-tabs-item>
+        <v-tabs-item href="#tab-style">
+          Style
+        </v-tabs-item>
+        <v-tabs-item href="#tab-preview" @click.native="updateStyle">
+          Preview
+        </v-tabs-item>
+      </v-tabs-bar>
+      <v-tabs-content id="tab-settings">
+        <v-card>
+          <v-card-text>
+            <v-container fluid>
+              <v-layout row>
+                <v-flex xs12>
+                  <v-text-field
+                    label="Name"
+                    v-model="page.name"
+                    v-on:input="onPageNameChange"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout row>
+                <v-flex xs12>
+                  <v-text-field
+                    label="Path"
+                    v-model="page.path"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+              <v-layout row>
+                <v-flex xs12 md3>
+                  <v-text-field
+                    label="Link"
+                    v-model="page.link"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 md3>
+                  <v-text-field
+                    label="Order"
+                    v-model="page.numorder"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 md3>
+                  <v-text-field
+                    label="Icon"
+                    v-model="page.icon"
+                  ></v-text-field>
+                </v-flex>
+                <v-flex xs12 md3>
+                  <v-switch
+                    label="Font Awesome"
+                    v-model="fa"
+                  ></v-switch>
+                </v-flex>
+              </v-layout>
+              <v-layout row>
+                <v-flex xs12>
+                  <v-data-table
+                    :headers="pagesHeaders"
+                    :items="pages"
+                    hide-actions
+                  >
+                    <template slot="items" scope="props">
+                      <td>{{ props.item.name }}</td>
+                      <td>{{ props.item.path }}</td>
+                      <td>{{ props.item.numorder }}</td>
+                    </template>
+                  </v-data-table>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-tabs-content>
+      <v-tabs-content id="tab-content">
+        <v-card>
+          <v-card-text>
+            <v-container fluid>
+              <v-layout row>
+                <v-flex xs1 v-for="(item, index) in buttonTags" :key="index">
+                  <v-btn icon @click.native.stop="addTag(item.tag)">
+                    <v-icon :fa="item.fa">{{ item.icon }}</v-icon>
+                  </v-btn>
+                </v-flex>
+              </v-layout>
+              <v-layout row>
+                <v-flex xs12>
+                  <v-text-field
+                    id="page-content"
+                    multiLine
+                    autoGrow
+                    rows="30"
+                    v-model="page.content"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-tabs-content>
+      <v-tabs-content id="tab-style">
+        <v-card>
+          <v-card-text>
+            <v-container fluid>
+              <v-layout row>
+                <v-flex xs12>
+                  <v-text-field
+                    multiLine
+                    autoGrow
+                    rows="30"
+                    v-model="page.style"
+                  ></v-text-field>
+                </v-flex>
+              </v-layout>
+            </v-container>
+          </v-card-text>
+        </v-card>
+      </v-tabs-content>
+      <v-tabs-content id="tab-preview">
+        <v-container
+          class="main-container"
+          v-html="page.content.replace(/\n/g, '<br />')"
+          v-if="page && page.content"
+          fluid
+          :style="'min-height: ' + ($parent.windowSize.y - 0) + 'px'"
+        >
         </v-container>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <v-btn @click.native="save">
-          <span v-if="isEdit">Save</span>
-          <span v-else>Create</span>
-        </v-btn>
-        <v-btn v-if="isEdit" @click.native="goBack">Back</v-btn>
-        <v-spacer></v-spacer>
-      </v-card-actions>
-    </v-card>
+      </v-tabs-content>
+    </v-tabs>
   </div>
 </template>
 
@@ -97,10 +146,11 @@
     data() {
       return {
         buttonTags: [
+          { icon: 'format_align_left', tag: 'left', fa: false },
           { icon: 'format_align_center', tag: 'center', fa: false },
+          { icon: 'format_align_right', tag: 'right', fa: false },
           { icon: 'format_align_justify', tag: 'justify', fa: false },
         ],
-        numorders: [],
         page: {
           name: null,
           link: null,
@@ -111,36 +161,35 @@
           content: null,
           style: null,
         },
+        pagesHeaders: [
+          {
+            text: 'Name',
+            align: 'left',
+            sortable: false,
+            value: 'name',
+          },
+          {
+            text: 'Path',
+            align: 'left',
+            sortable: false,
+            value: 'path',
+          },
+          {
+            text: 'Order',
+            align: 'left',
+            sortable: true,
+            value: 'numorder',
+          },
+        ],
+        pages: [],
         fa: null,
         createLink: false,
-        editBtn: null,
-        saveBtn: {
-          self: this,
-          enabled: true,
-          icon: 'save',
-          color: 'teal',
-          action() {
-            return this.self.save();
-          },
-        },
-        backBtn: {
-          self: this,
-          enabled: true,
-          icon: 'reply',
-          color: 'orange',
-          action() {
-            return this.self.goBack();
-          },
-        },
       };
     },
     created() {
       this.getPage();
-      this.getNumorders();
+      this.getPages();
       this.updateMenu();
-    },
-    destroyed() {
-      this.resetMenu();
     },
     computed: {
       isEdit() {
@@ -149,18 +198,40 @@
     },
     methods: {
       updateMenu() {
-        this.editBtn = this.$parent.adminBtns[0];
-        this.$parent.adminBtns.splice(0, 1, this.saveBtn);
-        this.$parent.adminBtns.splice(1, 0, this.backBtn);
-      },
-      resetMenu() {
-        this.$parent.adminBtns.splice(0, 2, this.editBtn);
+        this.$parent.adminBtns[1].action = () => this.save();
+        this.$parent.adminBtns[2].action = () => this.goBack();
       },
       getPage() {
-        if (this.$route.params.action === 'edit' && this.$route.params.page) {
-          this.axios.get(`page/${this.$route.params.page}`).then((response) => {
-            this.page = response.data;
-          });
+        this.clearStyle();
+        this.axios.get(`page/${this.$route.params.page}`).then((response) => {
+          const page = response.data;
+          if (page.style) {
+            const s = document.createElement('style');
+            s.setAttribute('id', 'page-style');
+            s.innerHTML = page.style;
+            document.getElementsByTagName('head')[0].appendChild(s);
+          }
+          this.page = page;
+        });
+      },
+      getPages() {
+        this.axios.get('page').then((response) => {
+          this.pages = response.data;
+        });
+      },
+      updateStyle() {
+        this.clearStyle();
+        if (this.page.style) {
+          const s = document.createElement('style');
+          s.setAttribute('id', 'page-style');
+          s.innerHTML = this.page.style;
+          document.getElementsByTagName('head')[0].appendChild(s);
+        }
+      },
+      clearStyle() {
+        const s = document.getElementById('page-style');
+        if (s) {
+          document.getElementsByTagName('head')[0].removeChild(s);
         }
       },
       getNumorders() {
@@ -259,6 +330,14 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  #pageform {
+    position: relative;
+  }
+
+  #tab-settings, #tab-content, #tab-style, #tab-preview {
+    margin-top: 48px;
+  }
+
   #hello {
     font-family: 'Avenir', Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
