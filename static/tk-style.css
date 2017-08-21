@@ -1,3 +1,5 @@
+@import url(https://fonts.googleapis.com/css?family=Fjalla+One);
+
 tk-title {
   position: absolute;
   color: white;
@@ -39,11 +41,9 @@ tk-animate[repeat] {
   animation-iteration-count: infinite;
 }
 
-tk-animate[spin] {
-  -webkit-animation-name: spinner;
+tk-animate[spin-x], tk-animate[spin-y] {
   -webkit-animation-timing-function: linear;
   -webkit-animation-duration: 2s;
-  animation-name: spinner;
   animation-timing-function: linear;
   animation-duration: 2s;
   -webkit-transform-style: preserve-3d;
@@ -52,16 +52,73 @@ tk-animate[spin] {
   transform-style: preserve-3d;
 }
 
-@keyframes spinner {
+tk-animate[spin-x] {
+  -webkit-animation-name: spinner-x;
+  animation-name: spinner-x;
+}
+
+tk-animate[spin-y] {
+  -webkit-animation-name: spinner-y;
+  animation-name: spinner-y;
+}
+
+@keyframes spinner-x {
+  from {
+    -moz-transform: rotateX(0deg);
+    -ms-transform: rotateX(0deg);
+    transform: rotateX(0deg);
+  }
+  to {
+    -moz-transform: rotateX(-360deg);
+    -ms-transform: rotateX(-360deg);
+    transform: rotateX(-360deg);
+  }
+}
+
+@keyframes spinner-y {
   from {
     -moz-transform: rotateY(0deg);
     -ms-transform: rotateY(0deg);
     transform: rotateY(0deg);
   }
-  to
-  {
+  to {
     -moz-transform: rotateY(-360deg);
     -ms-transform: rotateY(-360deg);
     transform: rotateY(-360deg);
+  }
+}
+
+tk-animate[fadeIn], tk-animate[fadeOut] {
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+tk-animate[fadeIn] {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+}
+
+tk-animate[fadeOut] {
+  -webkit-animation-name: fadeOut;
+  animation-name: fadeOut;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }

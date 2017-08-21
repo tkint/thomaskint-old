@@ -14,19 +14,24 @@
         <v-icon>account_circle</v-icon>
         <v-icon>close</v-icon>
       </v-btn>
-      <v-btn fab dark small class="green" @click.native="editPage" v-if="editBtn">
-        <v-icon>edit</v-icon>
-      </v-btn>
-      <v-btn fab dark small class="indigo" @click.native="newPage">
-        <v-icon>add</v-icon>
-      </v-btn>
-      <v-btn fab dark small class="red" @click.native="disconnect">
-        <v-icon>exit_to_app</v-icon>
+      <v-btn
+        fab
+        dark
+        small
+        v-for="(item, index) in adminBtns"
+        :key="index"
+        :class="item.color"
+        @click.native="item.action">
+        <v-icon>{{ item.icon }}</v-icon>
       </v-btn>
     </v-speed-dial>
     <v-navigation-drawer permanent style="overflow: hidden">
       <v-list class="navbar" dense>
-        <v-list-tile id="avatar-tile" v-if="links[0]" :to="!links[0].external ? { name: links[0].target } : ''" :href="links[0].external ? links[0].target : ''">
+        <v-list-tile
+          id="avatar-tile"
+          v-if="links[0]"
+          :to="!links[0].external ? { name: links[0].target } : ''"
+          :href="links[0].external ? links[0].target : ''">
           <v-list-tile-content>
             <img id="avatar" src="./assets/logo.png"/>
             <v-list-tile-title id="avatar-title">
@@ -34,7 +39,13 @@
             </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
-        <v-list-tile v-for="(link, index) in links" v-if="index > 0 && link" :key="link.name" :to="!link.external ? { name: link.target } : ''" :href="link.external ? link.target : ''" :id="link.target === $route.name ? 'selected-tile' : ''">
+        <v-list-tile
+          v-for="(link, index) in links"
+          v-if="index > 0 && link"
+          :key="link.name"
+          :to="!link.external ? { name: link.target } : ''"
+          :href="link.external ? link.target : ''"
+          :id="link.target === $route.name ? 'selected-tile' : ''">
           <v-list-tile-content>
             <v-list-tile-title>
               <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">{{ link.icon }}</v-icon>
@@ -65,8 +76,34 @@
     data() {
       return {
         adminMenu: false,
+        adminBtns: [
+          {
+            self: this.$parent,
+            icon: 'edit',
+            color: 'green',
+            action() {
+              this.self.$router.push({ name: 'EditPage', params: { action: 'edit', page: this.self.$route.name } });
+            },
+          },
+          {
+            self: this.$parent,
+            icon: 'add',
+            color: 'indigo',
+            action() {
+              this.self.$router.push({ name: 'NewPage', params: { action: 'create' } });
+            },
+          },
+          {
+            self: this.$parent,
+            icon: 'exit_to_app',
+            color: 'red',
+            action() {
+              this.self.connected = false;
+              this.self.$router.push({ name: 'Home' });
+            },
+          },
+        ],
         links: [],
-        editBtn: true,
         connected: true,
       };
     },
@@ -99,16 +136,6 @@
           });
           this.links = links;
         });
-      },
-      newPage() {
-        this.$router.push({ name: 'NewPage', params: { action: 'create' } });
-      },
-      editPage() {
-        this.$router.push({ name: 'EditPage', params: { action: 'edit', page: this.$route.name } });
-      },
-      disconnect() {
-        this.connected = false;
-        this.$router.push({ name: 'Home' });
       },
     },
   };
