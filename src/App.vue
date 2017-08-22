@@ -102,7 +102,9 @@
             icon: 'reply',
             color: 'orange',
             enabled: false,
-            action() {},
+            action() {
+              this.self.$router.push({ path: '/' });
+            },
           },
           {
             self: this.$parent,
@@ -149,9 +151,10 @@
     },
     methods: {
       updateMenu() {
-        this.adminBtns[1].enabled = this.$route.meta.editing;
-        this.adminBtns[2].enabled = this.$route.meta.editing;
-        this.adminBtns[3].enabled = this.$route.meta.editable;
+        this.adminBtns[1].enabled = this.$route.meta.canSave;
+        this.adminBtns[2].enabled = this.$route.meta.canBack;
+        this.adminBtns[3].enabled = this.$route.meta.canEdit;
+        this.adminBtns[4].enabled = this.$route.meta.canAdd;
       },
       onResize() {
         this.windowSize = { x: window.innerWidth, y: window.innerHeight };
@@ -167,8 +170,10 @@
               name: e.name,
               component: Page,
               meta: {
-                editable: true,
-                editing: false,
+                canSave: false,
+                canBack: false,
+                canEdit: true,
+                canAdd: true,
               },
             });
             links.push({ name: e.link, target: e.name, icon: e.icon });

@@ -48,6 +48,7 @@
                   <v-text-field
                     label="Order"
                     v-model="page.numorder"
+                    disabled
                   ></v-text-field>
                 </v-flex>
                 <v-flex xs12 md3>
@@ -61,21 +62,6 @@
                     label="Font Awesome"
                     v-model="fa"
                   ></v-switch>
-                </v-flex>
-              </v-layout>
-              <v-layout row>
-                <v-flex xs12>
-                  <v-data-table
-                    :headers="pagesHeaders"
-                    :items="pages"
-                    hide-actions
-                  >
-                    <template slot="items" scope="props">
-                      <td>{{ props.item.name }}</td>
-                      <td>{{ props.item.path }}</td>
-                      <td>{{ props.item.numorder }}</td>
-                    </template>
-                  </v-data-table>
                 </v-flex>
               </v-layout>
             </v-container>
@@ -161,34 +147,14 @@
           content: null,
           style: null,
         },
-        pagesHeaders: [
-          {
-            text: 'Name',
-            align: 'left',
-            sortable: false,
-            value: 'name',
-          },
-          {
-            text: 'Path',
-            align: 'left',
-            sortable: false,
-            value: 'path',
-          },
-          {
-            text: 'Order',
-            align: 'left',
-            sortable: true,
-            value: 'numorder',
-          },
-        ],
-        pages: [],
+        numorders: [],
         fa: null,
         createLink: false,
       };
     },
     created() {
       this.getPage();
-      this.getPages();
+      this.getNumorders();
       this.updateMenu();
     },
     computed: {
@@ -212,11 +178,6 @@
             document.getElementsByTagName('head')[0].appendChild(s);
           }
           this.page = page;
-        });
-      },
-      getPages() {
-        this.axios.get('page').then((response) => {
-          this.pages = response.data;
         });
       },
       updateStyle() {
