@@ -17,9 +17,9 @@
         fab
         dark
         small
-        v-for="(item, index) in adminBtns"
+        v-for="item in adminBtns"
         v-if="item.enabled"
-        :key="index"
+        :key="item.key"
         :class="item.color"
         @click.native="item.action">
         <v-icon>{{ item.icon }}</v-icon>
@@ -48,7 +48,9 @@
           :id="link.target === $route.name ? 'selected-tile' : ''">
           <v-list-tile-content>
             <v-list-tile-title>
-              <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">{{ link.icon }}</v-icon>
+              <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">{{ link.icon
+                }}
+              </v-icon>
               <v-icon class="menu-icon" large v-else>{{ link.icon }}</v-icon>
             </v-list-tile-title>
             <v-list-tile-sub-title class="menu-text">
@@ -82,6 +84,7 @@
         adminMenu: false,
         adminBtns: [
           {
+            key: 'settings',
             self: this.$parent,
             icon: 'settings',
             color: 'grey',
@@ -91,13 +94,16 @@
             },
           },
           {
+            key: 'save',
             self: this.$parent,
             icon: 'save',
             color: 'teal',
             enabled: false,
-            action() {},
+            action() {
+            },
           },
           {
+            key: 'back',
             self: this.$parent,
             icon: 'reply',
             color: 'orange',
@@ -107,6 +113,7 @@
             },
           },
           {
+            key: 'edit',
             self: this.$parent,
             icon: 'edit',
             color: 'green',
@@ -116,6 +123,7 @@
             },
           },
           {
+            key: 'add',
             self: this.$parent,
             icon: 'add',
             color: 'indigo',
@@ -125,6 +133,7 @@
             },
           },
           {
+            key: 'exit',
             self: this.$parent,
             icon: 'exit_to_app',
             color: 'red',
@@ -151,10 +160,10 @@
     },
     methods: {
       updateMenu() {
-        this.adminBtns[1].enabled = this.$route.meta.canSave;
-        this.adminBtns[2].enabled = this.$route.meta.canBack;
-        this.adminBtns[3].enabled = this.$route.meta.canEdit;
-        this.adminBtns[4].enabled = this.$route.meta.canAdd;
+        this.getAdminBtnByKey('save').enabled = this.$route.meta.canSave;
+        this.getAdminBtnByKey('back').enabled = this.$route.meta.canBack;
+        this.getAdminBtnByKey('edit').enabled = this.$route.meta.canEdit;
+        this.getAdminBtnByKey('add').enabled = this.$route.meta.canAdd;
       },
       onResize() {
         this.windowSize = { x: window.innerWidth, y: window.innerHeight };
@@ -192,6 +201,17 @@
           this.links = links;
         });
       },
+      getAdminBtnByKey(key) {
+        let adminBtn = null;
+        let i = 0;
+        while (i < this.adminBtns.length && !adminBtn) {
+          if (this.adminBtns[i].key === key) {
+            adminBtn = this.adminBtns[i];
+          }
+          i += 1;
+        }
+        return adminBtn;
+      },
     },
   };
 </script>
@@ -201,7 +221,7 @@
     width: 100px;
   }
 
-  .navigation-drawer--permanent.navigation-drawer--open:not(.navigation-drawer--right)~main {
+  .navigation-drawer--permanent.navigation-drawer--open:not(.navigation-drawer--right) ~ main {
     padding-left: 100px;
   }
 
@@ -277,7 +297,7 @@
     transform: translateY(100%);
   }
 
-  .slide-y-leave-to  {
+  .slide-y-leave-to {
     transform: translateY(-100%);
     opacity: 1;
   }
@@ -291,7 +311,7 @@
     transform: translateY(-100%);
   }
 
-  .slide-y-reverse-leave-to  {
+  .slide-y-reverse-leave-to {
     transform: translateY(100%);
     opacity: 1;
   }

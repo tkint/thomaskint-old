@@ -7,7 +7,8 @@ Vue.use(Router);
 
 export default new Router({
   routes: [
-    { path: '/pageform/:action',
+    {
+      path: '/pageform/:action',
       name: 'NewPage',
       component: PageForm,
       meta: {
@@ -17,7 +18,8 @@ export default new Router({
         canAdd: true,
       },
     },
-    { path: '/pageform/:action/:page',
+    {
+      path: '/pageform/:action/:page',
       name: 'EditPage',
       component: PageForm,
       meta: {
@@ -27,14 +29,15 @@ export default new Router({
         canAdd: true,
       },
     },
-    { path: '/settings',
+    {
+      path: '/settings',
       name: 'Settings',
       component: Settings,
       meta: {
         canSave: true,
         canBack: true,
         canEdit: false,
-        canAdd: false,
+        canAdd: true,
       },
     },
   ],

@@ -1,7 +1,8 @@
 <template>
   <div id="pageform">
     <v-tabs centered grow>
-      <v-tabs-bar slot="activators" class="teal" style="position: fixed; left: 100px; right: 0; width: auto; z-index: 998">
+      <v-tabs-bar slot="activators" class="teal"
+                  style="position: fixed; left: 100px; right: 0; width: auto; z-index: 998">
         <v-tabs-slider class="white"></v-tabs-slider>
         <v-tabs-item href="#tab-settings">
           Settings
@@ -26,6 +27,7 @@
                     label="Name"
                     v-model="page.name"
                     v-on:input="onPageNameChange"
+                    :disabled="page.name === 'Home'"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -34,6 +36,7 @@
                   <v-text-field
                     label="Path"
                     v-model="page.path"
+                    :disabled="page.name === 'Home'"
                   ></v-text-field>
                 </v-flex>
               </v-layout>
@@ -137,6 +140,7 @@
           { icon: 'format_align_right', tag: 'right', fa: false },
           { icon: 'format_align_justify', tag: 'justify', fa: false },
         ],
+        oldPage: null,
         page: {
           name: null,
           link: null,
@@ -147,6 +151,7 @@
           content: null,
           style: null,
         },
+        pageChanged: false,
         numorders: [],
         fa: null,
         createLink: false,
@@ -164,8 +169,8 @@
     },
     methods: {
       updateMenu() {
-        this.$parent.adminBtns[1].action = () => this.save();
-        this.$parent.adminBtns[2].action = () => this.goBack();
+        this.$parent.getAdminBtnByKey('save').action = () => this.save();
+        this.$parent.getAdminBtnByKey('back').action = () => this.goBack();
       },
       getPage() {
         this.clearStyle();
@@ -178,6 +183,7 @@
             document.getElementsByTagName('head')[0].appendChild(s);
           }
           this.page = page;
+          this.oldPage = Object.assign({}, page);
         });
       },
       updateStyle() {
@@ -204,10 +210,14 @@
         });
       },
       onPageNameChange() {
-        this.page.name = this.page.name.replace(/\s/g, '').trim();
-        this.page.path = `/${this.page.name.toLowerCase()}`;
-        this.page.link = this.page.name;
-        this.page.link = this.link.name.replace(/([A-Z])/g, ' $1').trim();
+        if (this.page && this.page.name !== 'Home') {
+          this.page.name = this.page.name.replace(/\s/g, '').trim();
+          if (!this.oldPage || !this.oldPage.path) {
+            this.page.path = `/${this.page.name.toLowerCase()}`;
+          }
+          this.page.link = this.page.name;
+          this.page.link = this.page.link.replace(/([A-Z])/g, ' $1').trim();
+        }
       },
       goBack() {
         if (this.isEdit) {
@@ -217,18 +227,20 @@
         }
       },
       save() {
-        if (this.isValid()) {
-          this.page.fa = this.fa;
-          if (this.$route.name === 'NewPage') {
-            this.axios.post('page', this.page).then((response) => {
-              this.page = response.data;
-              this.goBack();
-            });
-          } else {
-            this.axios.put('page', this.page).then((response) => {
-              this.page = response.data;
-              this.goBack();
-            });
+        if (this.hasChanged()) {
+          if (this.isValid()) {
+            this.page.fa = this.fa;
+            if (this.$route.name === 'NewPage') {
+              this.axios.post('page', this.page).then((response) => {
+                this.page = response.data;
+                this.goBack();
+              });
+            } else {
+              this.axios.put('page', this.page).then((response) => {
+                this.page = response.data;
+                this.goBack();
+              });
+            }
           }
         }
       },
@@ -285,30 +297,16 @@
         }
         return -1;
       },
+      hasChanged() {
+        return !(JSON.stringify(this.page) === JSON.stringify(this.oldPage));
+      },
     },
   };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  #pageform {
-    position: relative;
-  }
-
-  #tab-settings, #tab-content, #tab-style, #tab-preview {
+  .tabs__content {
     margin-top: 48px;
-  }
-
-  #hello {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  .img-responsive {
-    max-width: 100%;
-    height: auto;
   }
 </style>
