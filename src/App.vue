@@ -191,15 +191,23 @@
           this.links = links;
         });
       },
-      updateLinks() {
-        this.axios.get('page').then((response) => {
-          const pages = response.data;
+      updateLinks(newPages) {
+        if (Array.isArray(newPages)) {
           const links = [];
-          pages.forEach((e) => {
+          newPages.forEach((e) => {
             links.push({ name: e.link, target: e.name, icon: e.icon });
           });
           this.links = links;
-        });
+        } else {
+          this.axios.get('page').then((response) => {
+            const pages = response.data;
+            const links = [];
+            pages.forEach((e) => {
+              links.push({ name: e.link, target: e.name, icon: e.icon });
+            });
+            this.links = links;
+          });
+        }
       },
       getAdminBtnByKey(key) {
         let adminBtn = null;

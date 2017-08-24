@@ -1,8 +1,7 @@
 <template>
   <div id="pageform">
     <v-tabs centered grow>
-      <v-tabs-bar slot="activators" class="teal"
-                  style="position: fixed; left: 100px; right: 0; width: auto; z-index: 998">
+      <v-tabs-bar slot="activators" class="teal">
         <v-tabs-slider class="white"></v-tabs-slider>
         <v-tabs-item href="#tab-settings">
           Settings
@@ -130,6 +129,8 @@
 </template>
 
 <script>
+  import Page from '@/components/Page';
+
   export default {
     name: 'pageform',
     data() {
@@ -223,7 +224,26 @@
         if (this.isEdit) {
           this.$router.push({ name: this.page.name });
         } else {
-          this.$router.push({ path: '/' });
+          this.axios.get(`page/${this.page.name}`).then((response) => {
+            const page = response.data;
+            if (page.name) {
+              this.$router.addRoutes([{
+                path: page.path,
+                name: page.name,
+                component: Page,
+                meta: {
+                  canSave: false,
+                  canBack: false,
+                  canEdit: true,
+                  canAdd: true,
+                },
+              }]);
+              this.$parent.updateLinks();
+              this.$router.push({ name: this.page.name });
+            } else {
+              this.$router.push({ target: '/' });
+            }
+          });
         }
       },
       save() {
@@ -306,6 +326,22 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  #pageform[class*="active"] .tabs__bar {
+    position: absolute;
+    left: 0;
+    right: 0;
+    width: auto;
+    z-index: 998;
+  }
+
+  #pageform:not([class*="active"]) .tabs__bar {
+    position: fixed;
+    left: 100px;
+    right: 0;
+    width: auto;
+    z-index: 998;
+  }
+
   .tabs__content {
     margin-top: 48px;
   }

@@ -16,7 +16,8 @@
     "vue-axios": "^2.0.2",
     "vue-router": "^2.6.0",
     "vuedraggable": "^2.14.1",
-    "vuetify": "^0.14.11"
+    "vuetify": "^0.14.11",
+    "vuex": "^2.3.1"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

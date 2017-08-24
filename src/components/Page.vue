@@ -2,7 +2,7 @@
   <v-container
     class="main-container"
     v-html="page.content.replace(/\n/g, '<br />')"
-    v-if="page && page.content"
+    v-if="page"
     fluid
   >
   </v-container>
@@ -49,19 +49,6 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  #hello {
-    font-family: 'Avenir', Helvetica, Arial, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    vertical-align: middle;
-  }
-
-  .img-responsive {
-    max-width: 100%;
-    height: auto;
-  }
-
   #create .speed-dial {
     position: absolute;
   }
