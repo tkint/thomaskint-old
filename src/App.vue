@@ -61,6 +61,7 @@
       </v-list>
     </v-navigation-drawer>
     <main>
+      {{ test }}
       <transition name="flip" mode="out-in" appear>
         <router-view :key="$route.name"></router-view>
       </transition>
@@ -77,6 +78,7 @@
     name: 'app',
     data() {
       return {
+        test: 'Aille',
         windowSize: {
           x: 0,
           y: 0,
