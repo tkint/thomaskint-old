@@ -268,14 +268,7 @@
         return true;
       },
       addTag(tag) {
-        const input = document.getElementById('page-content');
-        const start = input.selectionStart;
-        const end = input.selectionEnd;
-        const sel = input.value.substring(start, end);
-        const finText = `${input.value.substring(0, start)}<${tag}>${sel}</${tag}>${input.value.substring(end)}`;
-        this.page.content = finText;
-        input.focus();
-        input.setSelectionRange(start, end);
+        this.$encoder.addTag('page-content', tag);
       },
       addTagOld(tag) {
         let value = this.page.content;

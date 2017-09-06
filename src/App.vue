@@ -156,6 +156,7 @@
     created() {
       this.getPages();
       this.updateMenu();
+      this.test = this.$encoder.decode('hello');
     },
     watch: {
       $route: ['updateLinks', 'updateMenu'],
