@@ -13,7 +13,7 @@ import router from './router';
 Vue.config.productionTip = false;
 
 Axios.defaults.baseURL = 'http://82.224.149.137/ThomasKintWebServices/';
-// Axios.defaults.baseURL = 'http://192.168.137.147/ThomasKintWebServices/';
+Axios.defaults.headers.Authorization = 'Basic dGtpbnQ6MzYyNjZacnBwYy4';
 
 Vue.use(Vuetify);
 Vue.use(VueAxios, Axios);

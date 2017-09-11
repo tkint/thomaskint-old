@@ -1,7 +1,7 @@
 <template>
   <v-container
     class="main-container"
-    v-html="page.content.replace(/\n/g, '<br />')"
+    v-html="$encoder.decode(page.content)"
     v-if="page"
     fluid
   >

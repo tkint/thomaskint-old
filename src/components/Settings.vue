@@ -186,7 +186,6 @@
     position: absolute;
     left: 0;
     right: 0;
-    width: auto;
     z-index: 998;
   }
 
@@ -194,7 +193,6 @@
     position: fixed;
     left: 100px;
     right: 0;
-    width: auto;
     z-index: 998;
   }
 

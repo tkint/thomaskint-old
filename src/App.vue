@@ -47,21 +47,20 @@
           :href="link.external ? link.target : ''"
           :id="link.target === $route.name ? 'selected-tile' : ''">
           <v-list-tile-content>
-            <v-list-tile-title>
-              <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">{{ link.icon
-                }}
-              </v-icon>
-              <v-icon class="menu-icon" large v-else>{{ link.icon }}</v-icon>
-            </v-list-tile-title>
-            <v-list-tile-sub-title class="menu-text">
+            <v-icon class="menu-icon" large style="font-size: 40px;" v-if="link.name === $route.name">
+              {{ link.icon }}
+            </v-icon>
+            <v-icon class="menu-icon" large v-else>
+              {{ link.icon }}
+            </v-icon>
+            <v-list-tile-title class="menu-text">
               {{ link.name }}
-            </v-list-tile-sub-title>
+            </v-list-tile-title>
           </v-list-tile-content>
         </v-list-tile>
       </v-list>
     </v-navigation-drawer>
     <main>
-      {{ test }}
       <transition name="flip" mode="out-in" appear>
         <router-view :key="$route.name"></router-view>
       </transition>
@@ -78,7 +77,6 @@
     name: 'app',
     data() {
       return {
-        test: 'Aille',
         windowSize: {
           x: 0,
           y: 0,
@@ -156,7 +154,6 @@
     created() {
       this.getPages();
       this.updateMenu();
-      this.test = this.$encoder.decode('hello');
     },
     watch: {
       $route: ['updateLinks', 'updateMenu'],
@@ -257,6 +254,12 @@
   .list--dense .list__tile:not(.list__tile--avatar):hover .menu-icon,
   .list--dense .list__tile:not(.list__tile--avatar):hover .menu-text {
     color: #339966;
+  }
+
+  .list__tile__content {
+    text-align: center;
+    display: -webkit-box !important;
+    -webkit-box-align: center;
   }
 
   #selected-tile {

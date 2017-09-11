@@ -73,26 +73,7 @@
       <v-tabs-content id="tab-content">
         <v-card>
           <v-card-text>
-            <v-container fluid>
-              <v-layout row>
-                <v-flex xs1 v-for="(item, index) in buttonTags" :key="index">
-                  <v-btn icon @click.native.stop="addTag(item.tag)">
-                    <v-icon :fa="item.fa">{{ item.icon }}</v-icon>
-                  </v-btn>
-                </v-flex>
-              </v-layout>
-              <v-layout row>
-                <v-flex xs12>
-                  <v-text-field
-                    id="page-content"
-                    multiLine
-                    autoGrow
-                    rows="30"
-                    v-model="page.content"
-                  ></v-text-field>
-                </v-flex>
-              </v-layout>
-            </v-container>
+            <editor :page="page"></editor>
           </v-card-text>
         </v-card>
       </v-tabs-content>
@@ -117,7 +98,7 @@
       <v-tabs-content id="tab-preview">
         <v-container
           class="main-container"
-          v-html="page.content.replace(/\n/g, '<br />')"
+          v-html="$encoder.decode(page.content)"
           v-if="page && page.content"
           fluid
           :style="'min-height: ' + ($parent.windowSize.y - 0) + 'px'"
@@ -130,17 +111,13 @@
 
 <script>
   import Page from '@/components/Page';
+  import Editor from '@/components/Editor';
 
   export default {
+    components: { Editor },
     name: 'pageform',
     data() {
       return {
-        buttonTags: [
-          { icon: 'format_align_left', tag: 'left', fa: false },
-          { icon: 'format_align_center', tag: 'center', fa: false },
-          { icon: 'format_align_right', tag: 'right', fa: false },
-          { icon: 'format_align_justify', tag: 'justify', fa: false },
-        ],
         oldPage: null,
         page: {
           name: null,
@@ -155,7 +132,6 @@
         pageChanged: false,
         numorders: [],
         fa: null,
-        createLink: false,
       };
     },
     created() {
@@ -267,49 +243,6 @@
       isValid() {
         return true;
       },
-      addTag(tag) {
-        this.$encoder.addTag('page-content', tag);
-      },
-      addTagOld(tag) {
-        let value = this.page.content;
-        const input = document.getElementById('page-content');
-        const pos = this.getCursorPos(input);
-        if (pos !== -1 && pos.start !== 0) {
-          const before = value.substring(0, pos.start);
-          if (pos.end > pos.start) {
-            const text = value.substring(pos.start, pos.end);
-            if (value.length > pos.end) {
-              const after = value.substring(pos.end, value.length);
-              value = `${before}<${tag}>${text}</${tag}>${after}`;
-            } else {
-              value = `${before}<${tag}>${text}</${tag}>`;
-            }
-          } else if (pos.start < value.length) {
-            const after = value.substring(pos.start, value.length);
-            value = `${before}<${tag}></${tag}>${after}`;
-          } else {
-            value = `${before}<${tag}></${tag}>`;
-          }
-        } else if (value && pos.start === 0) {
-          value = `<${tag}></${tag}>${value}`;
-        } else if (value) {
-          value += `<${tag}></${tag}>`;
-        } else {
-          value = `<${tag}></${tag}>`;
-        }
-        this.page.content = value;
-        input.focus();
-        input.selectionEnd = pos.end;
-      },
-      getCursorPos(input) {
-        if (input.selectionStart || input.selectionStart === 0 || input.selectionStart === '0') {
-          return {
-            start: input.selectionStart,
-            end: input.selectionEnd,
-          };
-        }
-        return -1;
-      },
       hasChanged() {
         return !(JSON.stringify(this.page) === JSON.stringify(this.oldPage));
       },
@@ -319,6 +252,10 @@
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
+  #pageform .tabs__container {
+    overflow-x: ;
+  }
+
   #pageform[class*="active"] .tabs__bar {
     position: absolute;
     left: 0;
