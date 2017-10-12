@@ -1,4 +1,5 @@
 import VueMediumEditor from 'vue2-medium-editor';
+import Config from './config';
 
 export default VueMediumEditor.MediumEditor.extensions.anchor.extend({
   name: 'animate',
@@ -6,15 +7,11 @@ export default VueMediumEditor.MediumEditor.extensions.anchor.extend({
   action: null,
   tagNames: ['span'],
   contentDefault: '<b>A</b>',
-  placeholderText: 'Animation',
-  repeatCheckboxText: 'Repeat',
-  classToApply: 'tk-animate',
-  animations: [
-    'fadeIn',
-    'fadeOut',
-    'spin-x',
-    'spin-y',
-  ],
+  placeholderText: Config.placeholderText,
+  repeatCheckbox: Config.repeatCheckbox,
+  repeatCheckboxText: Config.repeatCheckboxText,
+  classToApply: Config.classToApply,
+  animations: Config.animations,
   handleClick(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -50,13 +47,18 @@ export default VueMediumEditor.MediumEditor.extensions.anchor.extend({
       '<a href="#" class="medium-editor-toolbar-close">',
       this.getEditorOption('buttonLabels') === 'fontawesome' ? '<i class="fa fa-times"></i>' : this.formCloseLabel,
       '</a>',
-      '<div class="medium-editor-toolbar-form-row">',
-      `<input type="checkbox" class="medium-editor-toolbar-animate-repeat" id="medium-editor-toolbar-anchor-animate-repeat-${this.getEditorId()}">`,
-      `<label for="medium-editor-toolbar-animate-repeat-field-${this.getEditorId()}">`,
-      this.repeatCheckboxText,
-      '</label>',
-      '</div>',
     );
+
+    if (this.repeatCheckbox) {
+      template.push(
+        '<div class="medium-editor-toolbar-form-row">',
+        `<input type="checkbox" class="medium-editor-toolbar-animate-repeat" id="medium-editor-toolbar-anchor-animate-repeat-${this.getEditorId()}">`,
+        `<label for="medium-editor-toolbar-animate-repeat-field-${this.getEditorId()}">`,
+        this.repeatCheckboxText,
+        '</label>',
+        '</div>',
+        );
+    }
 
     return template.join('');
   },
@@ -100,7 +102,6 @@ export default VueMediumEditor.MediumEditor.extensions.anchor.extend({
     const doc = this.document;
     const form = doc.createElement('div');
 
-    // Anchor Form (div)
     form.className = 'medium-editor-toolbar-form';
     form.id = `medium-editor-toolbar-form-animate-${this.getEditorId()}`;
     form.innerHTML = this.getTemplate();
